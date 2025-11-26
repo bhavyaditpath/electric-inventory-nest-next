@@ -17,5 +17,6 @@ export class User extends BaseEntityClass {
   })
   role: UserRole;
 
+  @Column()
   branchId: number;
 }
