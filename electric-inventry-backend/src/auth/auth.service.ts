@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { LoginDto } from './dto/login-auth.dto';
 import { RegisterDto } from './dto/register-auth.dto';
 import { HashUtil } from '../utils/hash.util';
@@ -7,6 +7,7 @@ import { User } from '../user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { LoginResponse } from './types/auth.types';
+import { ApiResponse, ApiResponseUtil } from '../shared/api-response';
 
 @Injectable()
 export class AuthService {
@@ -16,13 +17,13 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  async register(dto: RegisterDto): Promise<User> {
+  async register(dto: RegisterDto): Promise<ApiResponse> {
     const exists = await this.userRepo.findOne({
       where: { username: dto.username }
     });
 
     if (exists) {
-      throw new BadRequestException("Username already exists");
+      return ApiResponseUtil.error("Username already exists");
     }
 
     const hashedPassword = await HashUtil.hash(dto.password);
@@ -33,19 +34,20 @@ export class AuthService {
       role: dto.role
     });
 
-    return this.userRepo.save(newUser);
+    const savedUser = await this.userRepo.save(newUser);
+    return ApiResponseUtil.success(savedUser, "User registered successfully");
   }
 
-  async login(dto: LoginDto): Promise<LoginResponse> {
+  async login(dto: LoginDto): Promise<ApiResponse> {
     const user = await this.userRepo.findOne({
       where: { username: dto.username }
     });
 
-    if (!user) throw new UnauthorizedException("Invalid credentials");
+    if (!user) return ApiResponseUtil.error("Invalid credentials");
 
     const passwordMatch = await HashUtil.compare(dto.password, user.password);
 
-    if (!passwordMatch) throw new UnauthorizedException("Invalid credentials");
+    if (!passwordMatch) return ApiResponseUtil.error("Invalid credentials");
 
     const payload = {
       sub: user.id,
@@ -55,6 +57,6 @@ export class AuthService {
 
     const token = this.jwtService.sign(payload);
 
-    return { access_token: token };
+    return ApiResponseUtil.success({ access_token: token }, "Login successful");
   }
 }

@@ -1,24 +1,25 @@
-// import { NestFactory } from '@nestjs/core';
-// import { AppModule } from '../../app.module';
-// import { UserService } from '../../user/user.service';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from '../../app.module';
+import { BranchService } from '../../branch/branch.service';
 
-// async function seedAdmin() {
-//   const app = await NestFactory.createApplicationContext(AppModule);
-//   const userService = app.get(UserService);
+async function seedBranches() {
+  const app = await NestFactory.createApplicationContext(AppModule);
+  const branchService = app.get(BranchService);
 
-//   const adminExists = await userService.findByUsername('admin');
+  const branches = [
+    { name: 'Main Branch', address: '123 Main St', phone: '555-0100' },
+    { name: 'Downtown Branch', address: '456 Downtown Ave', phone: '555-0200' },
+  ];
 
-//   if (!adminExists) {
-//     await userService.create({
-//       username: 'admin',
-//       password: 'Admin@123',
-//       role: 'ADMIN'
-//     });
+  for (const branchData of branches) {
+    const existing = await branchService.findByName(branchData.name);
+    if (!existing) {
+      await branchService.create(branchData);
+      console.log(`Branch "${branchData.name}" created!`);
+    }
+  }
 
-//     console.log('Admin user created!');
-//   }
+  await app.close();
+}
 
-//   await app.close();
-// }
-
-// seedAdmin();
+seedBranches();

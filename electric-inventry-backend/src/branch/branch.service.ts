@@ -1,26 +1,44 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Branch } from './entities/branch.entity';
 import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateBranchDto } from './dto/update-branch.dto';
 
 @Injectable()
 export class BranchService {
-  create(createBranchDto: CreateBranchDto) {
-    return 'This action adds a new branch';
+  constructor(
+    @InjectRepository(Branch)
+    private readonly branchRepository: Repository<Branch>,
+  ) {}
+
+  async create(createBranchDto: CreateBranchDto) {
+    const branch = this.branchRepository.create(createBranchDto);
+    return this.branchRepository.save(branch);
   }
 
-  findAll() {
-    return `This action returns all branch`;
+  async findAll() {
+    return this.branchRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} branch`;
+  async findOne(id: number) {
+    return this.branchRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateBranchDto: UpdateBranchDto) {
-    return `This action updates a #${id} branch`;
+  async findByName(name: string): Promise<Branch | null> {
+    return this.branchRepository.findOne({ where: { name } });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} branch`;
+  async update(id: number, updateBranchDto: UpdateBranchDto) {
+    await this.branchRepository.update(id, updateBranchDto);
+    return this.findOne(id);
+  }
+
+  async remove(id: number) {
+    const branch = await this.findOne(id);
+    if (branch) {
+      await this.branchRepository.remove(branch);
+    }
+    return branch;
   }
 }

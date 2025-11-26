@@ -1,5 +1,5 @@
-import { BaseEntityClass } from "src/shared/base.entity";
-import { UserRole } from "src/shared/enums/role.enum";
+import { BaseEntityClass } from "../../shared/base.entity";
+import { UserRole } from "../../shared/enums/role.enum";
 import { Column, Entity } from "typeorm";
 
 @Entity("users")
@@ -14,7 +14,8 @@ export class User extends BaseEntityClass {
   @Column({
     type: "enum",
     enum: UserRole,
-    default: UserRole.BRANCH,
   })
   role: UserRole;
+
+  branchId: number;
 }
