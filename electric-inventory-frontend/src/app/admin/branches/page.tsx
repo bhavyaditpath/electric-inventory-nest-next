@@ -2,16 +2,18 @@
 
 import { useState, useEffect } from "react";
 import DataTable, { TableColumn } from "../../../components/DataTable";
-import { branchApi } from "../../../lib/api";
 import { PencilIcon, TrashIcon, EyeIcon } from "@heroicons/react/24/outline";
+import { branchApi } from "@/Services/branch.api";
 
 interface Branch {
   id: number;
   name: string;
-  address?: string;
-  phone?: string;
+  address: string | null;
+  phone: string | null;
   createdAt: string;
   updatedAt: string;
+  createdBy: number | null;
+  updatedBy: number | null;
   isRemoved: boolean;
 }
 
@@ -26,7 +28,7 @@ const columns: TableColumn<Branch>[] = [
     key: "address",
     header: "Address",
     sortable: false,
-    render: (value) => (
+    render: (value: string | undefined) => (
       <div className="max-w-xs truncate" title={value || "N/A"}>
         {value || "N/A"}
       </div>
@@ -36,19 +38,19 @@ const columns: TableColumn<Branch>[] = [
     key: "phone",
     header: "Phone",
     sortable: false,
-    render: (value) => value || "N/A"
+    render: (value: string | undefined) => value || "N/A"
   },
   {
     key: "createdAt",
     header: "Created",
     sortable: true,
-    render: (value) => new Date(value).toLocaleDateString()
+    render: (value: string) => new Date(value).toLocaleDateString()
   },
   {
     key: "isRemoved",
     header: "Status",
     sortable: true,
-    render: (value) => (
+    render: (value: boolean) => (
       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
         !value
           ? 'bg-green-100 text-green-800'
@@ -70,50 +72,18 @@ export default function BranchesPage() {
       setLoading(true);
       try {
         const response = await branchApi.getAll();
-        console.log('API Response:', response); // Debug log
-
-        // Handle both response formats: direct array or wrapped response
-        let branchesData = [];
+        let branchesData: Branch[] = [];
         if (Array.isArray(response)) {
-          // Direct array response from backend
-          branchesData = response;
+          branchesData = response as Branch[];
         } else if (response.success && Array.isArray(response.data)) {
-          // Wrapped response format
-          branchesData = response.data;
+          branchesData = response.data as Branch[];
         } else {
           throw new Error('Invalid response format');
         }
 
-        // Transform the data to match our interface
-        const transformedBranches = branchesData.map((branch: any) => ({
-          ...branch,
-          createdAt: new Date(branch.createdAt).toISOString(),
-          updatedAt: new Date(branch.updatedAt).toISOString(),
-        }));
-        setBranches(transformedBranches);
+        setBranches(branchesData);
       } catch (error) {
         console.error('Error loading branches:', error);
-        // For demo purposes, show some sample data if API fails
-        setBranches([
-          {
-            id: 1,
-            name: "Main Branch",
-            address: "123 Main St, City, State 12345",
-            phone: "555-0100",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            isRemoved: false,
-          },
-          {
-            id: 2,
-            name: "Downtown Branch",
-            address: "456 Downtown Ave, City, State 12346",
-            phone: "555-0200",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-            isRemoved: false,
-          }
-        ]);
       } finally {
         setLoading(false);
       }
@@ -136,23 +106,16 @@ export default function BranchesPage() {
     if (window.confirm(`Are you sure you want to delete "${branch.name}"?`)) {
       try {
         await branchApi.delete(branch.id);
-        // Refresh the branches list after successful deletion
         const loadBranches = async () => {
           try {
             const response = await branchApi.getAll();
-            let branchesData = [];
+            let branchesData: Branch[] = [];
             if (Array.isArray(response)) {
-              branchesData = response;
+              branchesData = response as Branch[];
             } else if (response.success && Array.isArray(response.data)) {
-              branchesData = response.data;
+              branchesData = response.data as Branch[];
             }
-
-            const transformedBranches = branchesData.map((branch: any) => ({
-              ...branch,
-              createdAt: new Date(branch.createdAt).toISOString(),
-              updatedAt: new Date(branch.updatedAt).toISOString(),
-            }));
-            setBranches(transformedBranches);
+            setBranches(branchesData);
           } catch (error) {
             console.error("Error refreshing branches:", error);
           }
@@ -224,17 +187,21 @@ export default function BranchesPage() {
       <div className="">
         <div className="p-0">
           <DataTable
-            data={branches}
-            columns={columns}
-            loading={loading}
-            emptyMessage="No branches found"
-            actions={actions}
-            onRowClick={(row) => handleView(row)}
-            moduleName="Branches Management"
-            striped={true}
-            hover={true}
-            size="md"
-          />
+              data={branches}
+              columns={columns}
+              loading={loading}
+              emptyMessage="No branches found"
+              actions={actions}
+              onRowClick={(row) => handleView(row)}
+              moduleName="Branches Management"
+              striped={true}
+              hover={true}
+              size="md"
+              pagination={true}
+              pageSize={10}
+              showPageSizeSelector={true}
+              pageSizeOptions={[5, 10, 25, 50]}
+            />
         </div>
       </div>
     </div>

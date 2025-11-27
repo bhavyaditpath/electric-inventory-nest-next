@@ -14,7 +14,7 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
-import { tokenManager } from "../lib/api";
+import { tokenManager } from "@/Services/token.management.service";
 
 interface MenuItem {
   name: string;

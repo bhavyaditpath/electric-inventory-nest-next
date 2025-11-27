@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authApi, tokenManager } from "../../../lib/api";
 import { UserRole } from "../../../types/enums";
+import { tokenManager } from "@/Services/token.management.service";
+import { authApi } from "@/Services/auth.api";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");

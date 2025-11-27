@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { tokenManager } from '../lib/api';
 import { UserRole } from '../types/enums';
+import { tokenManager } from '@/Services/token.management.service';
 
 interface User {
   id: number;
