@@ -22,7 +22,17 @@ export default function LoginPage() {
 
       if (response.success && response.data?.access_token) {
         tokenManager.setToken(response.data.access_token);
-        router.push("/admin/dashboard");
+
+        // Get user role and redirect accordingly
+        const userRole = tokenManager.getUserRole();
+        if (userRole === 'ADMIN') {
+          router.push("/admin/dashboard");
+        } else if (userRole === 'BRANCH') {
+          router.push("/branch/dashboard");
+        } else {
+          setError("Invalid user role");
+          tokenManager.removeToken();
+        }
       } else {
         setError(response.message || "Login failed");
       }

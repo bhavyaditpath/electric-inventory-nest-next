@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { tokenManager } from "../../lib/api";
-import Sidebar from "../../components/Sidebar";
+import BranchSidebar from "../../components/BranchSidebar";
 
-export default function AdminLayout({
+export default function BranchLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -16,18 +16,18 @@ export default function AdminLayout({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   useEffect(() => {
-    // Check if token exists and user has admin role (only on client side)
+    // Check if token exists and user has branch role (only on client side)
     const token = localStorage.getItem('token');
     if (!token) {
       router.push('/auth/login');
     } else {
       const userRole = tokenManager.getUserRole();
-      if (userRole === 'ADMIN') {
+      if (userRole === 'BRANCH') {
         setHasToken(true);
       } else {
-        // User doesn't have admin role, redirect to appropriate dashboard or login
-        if (userRole === 'BRANCH') {
-          router.push('/branch/dashboard');
+        // User doesn't have branch role, redirect to appropriate dashboard or login
+        if (userRole === 'ADMIN') {
+          router.push('/admin/dashboard');
         } else {
           router.push('/auth/login');
         }
@@ -41,7 +41,7 @@ export default function AdminLayout({
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Checking authentication...</p>
         </div>
       </div>
@@ -55,7 +55,7 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <Sidebar
+      <BranchSidebar
         isCollapsed={isSidebarCollapsed}
         onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />

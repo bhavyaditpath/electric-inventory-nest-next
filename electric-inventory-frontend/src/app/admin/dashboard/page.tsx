@@ -1,52 +1,60 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { tokenManager } from "../../../lib/api";
-
 export default function DashboardPage() {
-  const router = useRouter();
-
-  const handleLogout = () => {
-    tokenManager.removeToken();
-    router.push('/auth/login');
-  };
-
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-700">Welcome, User</span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+    <div className="p-6">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-gray-600 mt-2">Welcome to the Electric Inventory Management System</p>
+      </div>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="border-4 border-dashed border-gray-200 rounded-lg p-8">
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                Electric Inventory Dashboard
-              </h2>
-              <p className="text-gray-600">
-                Welcome to the Electric Inventory Management System.
-                This dashboard will show inventory statistics, branch information, and user management tools.
-              </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Dashboard Cards */}
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Total Inventory</h3>
+          <p className="text-3xl font-bold text-blue-600">1,234</p>
+          <p className="text-sm text-gray-500">Items in stock</p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Active Branches</h3>
+          <p className="text-3xl font-bold text-green-600">12</p>
+          <p className="text-sm text-gray-500">Branches online</p>
+        </div>
+
+        <div className="bg-white rounded-lg shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Monthly Sales</h3>
+          <p className="text-3xl font-bold text-purple-600">$45,678</p>
+          <p className="text-sm text-gray-500">This month</p>
+        </div>
+      </div>
+
+      <div className="mt-8 bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between py-2 border-b border-gray-200">
+            <div>
+              <p className="text-sm font-medium text-gray-900">New inventory added</p>
+              <p className="text-xs text-gray-500">2 hours ago</p>
             </div>
+            <span className="text-sm text-blue-600">+50 items</span>
+          </div>
+          <div className="flex items-center justify-between py-2 border-b border-gray-200">
+            <div>
+              <p className="text-sm font-medium text-gray-900">Branch request approved</p>
+              <p className="text-xs text-gray-500">4 hours ago</p>
+            </div>
+            <span className="text-sm text-green-600">Approved</span>
+          </div>
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <p className="text-sm font-medium text-gray-900">Low stock alert</p>
+              <p className="text-xs text-gray-500">6 hours ago</p>
+            </div>
+            <span className="text-sm text-red-600">5 items</span>
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

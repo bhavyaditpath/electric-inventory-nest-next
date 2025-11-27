@@ -64,6 +64,41 @@ async function seedData() {
     console.log('Admin user already exists');
   }
 
+  // Seed branch users
+  const branchUsers = [
+    {
+      username: 'branch2',
+      password: 'branch2',
+      branchName: 'Downtown Branch',
+      role: UserRole.BRANCH
+    }
+  ];
+
+  for (const userData of branchUsers) {
+    const existingUser = await userService.findByUsername(userData.username);
+    const branch = await branchService.findByName(userData.branchName);
+
+    if (!existingUser) {
+      if (branch) {
+        const user = await userService.create({
+          username: userData.username,
+          password: userData.password,
+          role: userData.role,
+          branchName: userData.branchName,
+        });
+        console.log(`Branch user created!`);
+        console.log(`Username: ${userData.username}`);
+        console.log(`Password: ${userData.password}`);
+        console.log(`Branch: ${userData.branchName}`);
+        console.log(`Role: ${userData.role}`);
+      } else {
+        console.log(`Branch "${userData.branchName}" not found for user ${userData.username}`);
+      }
+    } else {
+      console.log(`Branch user "${userData.username}" already exists`);
+    }
+  }
+
   await app.close();
 }
 

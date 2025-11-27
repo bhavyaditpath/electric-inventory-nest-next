@@ -104,4 +104,23 @@ export const tokenManager = {
   isAuthenticated: () => {
     return !!tokenManager.getToken();
   },
+
+  decodeToken: (token: string) => {
+    try {
+      const payload = token.split('.')[1];
+      const decodedPayload = JSON.parse(atob(payload));
+      return decodedPayload;
+    } catch (error) {
+      console.error('Error decoding token:', error);
+      return null;
+    }
+  },
+
+  getUserRole: () => {
+    const token = tokenManager.getToken();
+    if (!token) return null;
+
+    const decoded = tokenManager.decodeToken(token);
+    return decoded?.role || null;
+  },
 };
