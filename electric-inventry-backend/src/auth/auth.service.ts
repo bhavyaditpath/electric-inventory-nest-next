@@ -8,6 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { LoginResponse } from './types/auth.types';
 import { ApiResponse, ApiResponseUtil } from '../shared/api-response';
+import { CLIENT_RENEG_LIMIT } from 'tls';
 
 @Injectable()
 export class AuthService {
@@ -50,9 +51,9 @@ export class AuthService {
     if (!passwordMatch) return ApiResponseUtil.error("Invalid credentials");
 
     const payload = {
-      sub: user.id,
-      username: user.username,
-      role: user.role
+      sub: user!.id,
+      username: user!.username,
+      role: user!.role
     };
 
     const token = this.jwtService.sign(payload);

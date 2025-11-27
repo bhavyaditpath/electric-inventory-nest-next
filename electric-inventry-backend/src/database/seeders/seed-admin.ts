@@ -26,18 +26,18 @@ async function seedData() {
 
   // Seed admin user
   const adminUsername = 'admin';
-  const adminPassword = 'Admin@123';
+  const adminPassword = 'admin';
   const adminBranchName = 'Main Branch';
 
   const existingAdmin = await userService.findByUsername(adminUsername);
-  if (!existingAdmin) {
-    const hashedPassword = await HashUtil.hash(adminPassword);
-    const branch = await branchService.findByName(adminBranchName);
+  const hashedPassword = await HashUtil.hash(adminPassword);
+  const branch = await branchService.findByName(adminBranchName);
 
+  if (!existingAdmin) {
     if (branch) {
       const user = await userService.create({
         username: adminUsername,
-        password: hashedPassword,
+        password: adminPassword,
         role: UserRole.ADMIN,
         branchName: adminBranchName,
       });
@@ -51,6 +51,16 @@ async function seedData() {
       console.log('Branch not found for admin user');
     }
   } else {
+    // Update password if different
+    if (existingAdmin.password !== hashedPassword) {
+      await userService.update(existingAdmin.id, {
+        username: adminUsername,
+        password: adminPassword,
+        role: UserRole.ADMIN,
+        branchName: adminBranchName,
+      });
+      console.log('Admin password updated');
+    }
     console.log('Admin user already exists');
   }
 
