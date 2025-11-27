@@ -31,9 +31,10 @@ const menuItems: MenuItem[] = [
 interface BranchSidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+  isMobile?: boolean;
 }
 
-export default function BranchSidebar({ isCollapsed, onToggle }: BranchSidebarProps) {
+export default function BranchSidebar({ isCollapsed, onToggle, isMobile = false }: BranchSidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -46,7 +47,9 @@ export default function BranchSidebar({ isCollapsed, onToggle }: BranchSidebarPr
     <div
       className={`${
         isCollapsed ? "w-16" : "w-64"
-      } bg-white shadow-lg transition-all duration-300 ease-in-out h-screen fixed left-0 top-0 z-50`}
+      } bg-white shadow-lg transition-all duration-300 ease-in-out h-screen ${
+        isMobile ? "" : "fixed left-0 top-0 z-50"
+      }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">

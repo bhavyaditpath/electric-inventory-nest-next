@@ -142,6 +142,61 @@ export default function DataTable<T extends Record<string, any>>({
     );
   }
 
+  // Mobile Card Component
+  const MobileCard = ({ row, index }: { row: T; index: number }) => (
+    <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex-1">
+          {columns.slice(0, 2).map((column, colIndex) => {
+            const value = row[column.key as keyof T];
+            const renderedValue = column.render
+              ? column.render(value, row, index)
+              : String(value || "");
+
+            return (
+              <div key={colIndex} className="mb-2">
+                <div className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  {column.header}
+                </div>
+                <div className="text-sm text-gray-900 mt-1">
+                  {renderedValue}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {actions && (
+          <div className="ml-4">
+            {actions(row, index)}
+          </div>
+        )}
+      </div>
+
+      {/* Additional columns in a grid */}
+      {columns.length > 2 && (
+        <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
+          {columns.slice(2).map((column, colIndex) => {
+            const value = row[column.key as keyof T];
+            const renderedValue = column.render
+              ? column.render(value, row, index)
+              : String(value || "");
+
+            return (
+              <div key={colIndex + 2} className="text-xs">
+                <div className="font-medium text-gray-500 uppercase tracking-wider">
+                  {column.header}
+                </div>
+                <div className="text-sm text-gray-900 mt-1">
+                  {renderedValue}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
   // Pagination component
   const PaginationControls = () => {
     if (!pagination || totalPages <= 1) return null;
@@ -173,31 +228,31 @@ export default function DataTable<T extends Record<string, any>>({
     };
 
     return (
-      <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
-        {/* Page size selector */}
-        {showPageSizeSelector && (
-          <div className="flex items-center space-x-2">
-            <label htmlFor="pageSize" className="text-sm text-gray-700">
-              Show:
-            </label>
-            <select
-              id="pageSize"
-              value={pageSize}
-              onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-              className="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {pageSizeOptions.map(size => (
-                <option key={size} value={size}>{size}</option>
-              ))}
-            </select>
-          </div>
-        )}
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-3 bg-white border-t border-gray-200 sm:px-6">
+        {/* Page size selector and info */}
+        <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+          {showPageSizeSelector && (
+            <div className="flex items-center space-x-2">
+              <label htmlFor="pageSize" className="text-sm text-gray-700">
+                Show:
+              </label>
+              <select
+                id="pageSize"
+                value={pageSize}
+                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                className="border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[80px]"
+              >
+                {pageSizeOptions.map(size => (
+                  <option key={size} value={size}>{size}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
-        {/* Pagination info */}
-        <div className="flex items-center space-x-2 text-sm text-gray-700">
-          <span>
+          {/* Pagination info */}
+          <div className="text-sm text-gray-700 text-center sm:text-left">
             Showing {startIndex + 1} to {Math.min(endIndex, totalItems)} of {totalItems} results
-          </span>
+          </div>
         </div>
 
         {/* Page navigation */}
@@ -205,32 +260,42 @@ export default function DataTable<T extends Record<string, any>>({
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-w-[80px]"
           >
             Previous
           </button>
 
-          {getVisiblePages().map((page, index) => (
-            <button
-              key={index}
-              onClick={() => typeof page === 'number' && handlePageChange(page)}
-              disabled={page === '...'}
-              className={`px-3 py-1 text-sm border rounded ${
-                page === currentPage
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : page === '...'
-                  ? 'border-gray-300 cursor-default'
-                  : 'border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              {page}
-            </button>
-          ))}
+          {/* Mobile: Show fewer pages */}
+          <div className="hidden sm:flex items-center space-x-1">
+            {getVisiblePages().map((page, index) => (
+              <button
+                key={index}
+                onClick={() => typeof page === 'number' && handlePageChange(page)}
+                disabled={page === '...'}
+                className={`px-3 py-2 text-sm border rounded min-w-[40px] ${
+                  page === currentPage
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : page === '...'
+                    ? 'border-gray-300 cursor-default'
+                    : 'border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile: Simple current page indicator */}
+          <div className="sm:hidden flex items-center space-x-2">
+            <span className="text-sm text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+          </div>
 
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-2 text-sm border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed min-w-[80px]"
           >
             Next
           </button>
@@ -240,96 +305,119 @@ export default function DataTable<T extends Record<string, any>>({
   };
 
   return (
-    <div className={`overflow-x-auto ${className}`}>
-      <table className={`min-w-full divide-y divide-gray-200 ${getSizeClasses()}`}>
-        {/* Table Header */}
-        <thead className="bg-gray-50">
-          <tr>
-            {columns.map((column, index) => (
-              <th
-                key={index}
-                className={`text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
-                  getCellPadding()
-                } ${column.className || ""}`}
-              >
-                {column.sortable ? (
-                  <button
-                    onClick={() => handleSort(column.key as string)}
-                    className="flex items-center space-x-1 hover:text-gray-700 focus:outline-none"
-                  >
-                    <span>{column.header}</span>
-                    {sortColumn === column.key && (
-                      sortDirection === "asc" ? (
-                        <ChevronUpIcon className="w-4 h-4" />
-                      ) : (
-                        <ChevronDownIcon className="w-4 h-4" />
-                      )
-                    )}
-                  </button>
-                ) : (
-                  column.header
-                )}
-              </th>
-            ))}
-            {actions && (
-              <th className={`text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${getCellPadding()}`}>
-                Actions
-              </th>
-            )}
-          </tr>
-        </thead>
-
-        {/* Table Body */}
-        <tbody className="bg-white divide-y divide-gray-200">
-          {paginatedData.length === 0 ? (
+    <div className={className}>
+      {/* Desktop Table View */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className={`min-w-full divide-y divide-gray-200 ${getSizeClasses()}`}>
+          {/* Table Header */}
+          <thead className="bg-gray-50">
             <tr>
-              <td
-                colSpan={columns.length + (actions ? 1 : 0)}
-                className={`text-center text-gray-500 ${getCellPadding()} py-8`}
-              >
-                {emptyMessage}
-              </td>
-            </tr>
-          ) : (
-            paginatedData.map((row, rowIndex) => {
-              const actualIndex = pagination ? startIndex + rowIndex : rowIndex;
-              return (
-                <tr
-                  key={actualIndex}
-                  className={`
-                    ${striped && rowIndex % 2 === 1 ? "bg-gray-50" : ""}
-                    ${hover ? "hover:bg-gray-100" : ""}
-                    ${onRowClick ? "cursor-pointer" : ""}
-                    ${bordered ? "border-b border-gray-200" : ""}
-                  `}
-                  onClick={() => onRowClick?.(row, actualIndex)}
+              {columns.map((column, index) => (
+                <th
+                  key={index}
+                  className={`text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                    getCellPadding()
+                  } ${column.className || ""}`}
                 >
-                  {columns.map((column, colIndex) => {
-                    const value = row[column.key as keyof T];
-                    const renderedValue = column.render
-                      ? column.render(value, row, actualIndex)
-                      : String(value || "");
-
-                    return (
-                      <td
-                        key={colIndex}
-                        className={`${getCellPadding()} whitespace-nowrap text-gray-900 ${column.className || ""}`}
-                      >
-                        {renderedValue}
-                      </td>
-                    );
-                  })}
-                  {actions && (
-                    <td className={`${getCellPadding()} whitespace-nowrap text-right`}>
-                      {actions(row, actualIndex)}
-                    </td>
+                  {column.sortable ? (
+                    <button
+                      onClick={() => handleSort(column.key as string)}
+                      className="flex items-center space-x-1 hover:text-gray-700 focus:outline-none"
+                    >
+                      <span>{column.header}</span>
+                      {sortColumn === column.key && (
+                        sortDirection === "asc" ? (
+                          <ChevronUpIcon className="w-4 h-4" />
+                        ) : (
+                          <ChevronDownIcon className="w-4 h-4" />
+                        )
+                      )}
+                    </button>
+                  ) : (
+                    column.header
                   )}
-                </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
+                </th>
+              ))}
+              {actions && (
+                <th className={`text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${getCellPadding()}`}>
+                  Actions
+                </th>
+              )}
+            </tr>
+          </thead>
+
+          {/* Table Body */}
+          <tbody className="bg-white divide-y divide-gray-200">
+            {paginatedData.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={columns.length + (actions ? 1 : 0)}
+                  className={`text-center text-gray-500 ${getCellPadding()} py-8`}
+                >
+                  {emptyMessage}
+                </td>
+              </tr>
+            ) : (
+              paginatedData.map((row, rowIndex) => {
+                const actualIndex = pagination ? startIndex + rowIndex : rowIndex;
+                return (
+                  <tr
+                    key={actualIndex}
+                    className={`
+                      ${striped && rowIndex % 2 === 1 ? "bg-gray-50" : ""}
+                      ${hover ? "hover:bg-gray-100" : ""}
+                      ${onRowClick ? "cursor-pointer" : ""}
+                      ${bordered ? "border-b border-gray-200" : ""}
+                    `}
+                    onClick={() => onRowClick?.(row, actualIndex)}
+                  >
+                    {columns.map((column, colIndex) => {
+                      const value = row[column.key as keyof T];
+                      const renderedValue = column.render
+                        ? column.render(value, row, actualIndex)
+                        : String(value || "");
+
+                      return (
+                        <td
+                          key={colIndex}
+                          className={`${getCellPadding()} whitespace-nowrap text-gray-900 ${column.className || ""}`}
+                        >
+                          {renderedValue}
+                        </td>
+                      );
+                    })}
+                    {actions && (
+                      <td className={`${getCellPadding()} whitespace-nowrap text-right`}>
+                        {actions(row, actualIndex)}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="md:hidden">
+        {paginatedData.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">
+            {emptyMessage}
+          </div>
+        ) : (
+          paginatedData.map((row, rowIndex) => {
+            const actualIndex = pagination ? startIndex + rowIndex : rowIndex;
+            return (
+              <MobileCard
+                key={actualIndex}
+                row={row}
+                index={actualIndex}
+              />
+            );
+          })
+        )}
+      </div>
 
       {/* Pagination Controls */}
       <PaginationControls />

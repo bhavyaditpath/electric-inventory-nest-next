@@ -35,9 +35,10 @@ const menuItems: MenuItem[] = [
 interface SidebarProps {
   isCollapsed: boolean;
   onToggle: () => void;
+  isMobile?: boolean;
 }
 
-export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
+export default function Sidebar({ isCollapsed, onToggle, isMobile = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -50,7 +51,9 @@ export default function Sidebar({ isCollapsed, onToggle }: SidebarProps) {
     <div
       className={`${
         isCollapsed ? "w-16" : "w-64"
-      } bg-white shadow-lg transition-all duration-300 ease-in-out h-screen fixed left-0 top-0 z-50`}
+      } bg-white shadow-lg transition-all duration-300 ease-in-out h-screen ${
+        isMobile ? "" : "fixed left-0 top-0 z-50"
+      }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
