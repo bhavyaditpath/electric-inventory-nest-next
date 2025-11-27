@@ -24,12 +24,12 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { name: "Dashboard", href: "/admin/dashboard", icon: HomeIcon },
+  { name: "Branches", href: "/admin/branches", icon: BuildingStorefrontIcon },
+  { name: "Users", href: "/admin/users", icon: UsersIcon },
   { name: "Inventory", href: "/admin/inventory", icon: CubeIcon },
   { name: "Purchase", href: "/admin/purchase", icon: ShoppingBagIcon },
   { name: "Sales", href: "/admin/sales", icon: ChartBarIcon },
   { name: "Alerts", href: "/admin/alerts", icon: ExclamationTriangleIcon },
-  { name: "Branches", href: "/admin/branches", icon: BuildingStorefrontIcon },
-  { name: "Users", href: "/admin/users", icon: UsersIcon },
 ];
 
 interface SidebarProps {
