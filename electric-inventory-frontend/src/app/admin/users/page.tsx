@@ -73,19 +73,19 @@ export default function UserPage() {
             header: "Branch",
             render: (value: { id: number; name: string } | undefined) => value?.name || "N/A"
         },
-        {
-            key: "isRemoved",
-            header: "Status",
-            sortable: true,
-            render: (value: boolean) => (
-                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${!value
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-red-100 text-red-800'
-                    }`}>
-                    {!value ? 'Active' : 'Inactive'}
-                </span>
-            )
-        }
+        // {
+        //     key: "isRemoved",
+        //     header: "Status",
+        //     sortable: true,
+        //     render: (value: boolean) => (
+        //         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${!value
+        //             ? 'bg-green-100 text-green-800'
+        //             : 'bg-red-100 text-red-800'
+        //             }`}>
+        //             {!value ? 'Active' : 'Inactive'}
+        //         </span>
+        //     )
+        // }
     ], [branches]);
 
     useEffect(() => {
