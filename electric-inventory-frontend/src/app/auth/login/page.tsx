@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authApi, tokenManager } from "../../../lib/api";
+import { UserRole } from "../../../types/enums";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -25,9 +26,9 @@ export default function LoginPage() {
 
         // Get user role and redirect accordingly
         const userRole = tokenManager.getUserRole();
-        if (userRole === 'ADMIN') {
+        if (userRole === UserRole.ADMIN) {
           router.push("/admin/dashboard");
-        } else if (userRole === 'BRANCH') {
+        } else if (userRole === UserRole.BRANCH) {
           router.push("/branch/dashboard");
         } else {
           setError("Invalid user role");

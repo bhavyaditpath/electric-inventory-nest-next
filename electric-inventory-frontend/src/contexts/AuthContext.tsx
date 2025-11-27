@@ -2,11 +2,12 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { tokenManager } from '../lib/api';
+import { UserRole } from '../types/enums';
 
 interface User {
   id: number;
   username: string;
-  role: string;
+  role: UserRole;
   branchId: number;
 }
 
@@ -40,9 +41,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Check if user is logged in on app start
     const token = tokenManager.getToken();
     if (token) {
-      // In a real app, you might validate the token here
-      // For now, we'll assume it's valid
-      setUser({ id: 0, username: '', role: '', branchId: 0 }); // Placeholder
+      // Decode token to get user information
+      const decoded = tokenManager.decodeToken(token);
+      if (decoded) {
+        setUser({
+          id: decoded.sub || 0,
+          username: decoded.username || '',
+          role: (decoded.role as UserRole) || UserRole.BRANCH,
+          branchId: decoded.branchId || 0,
+        });
+      }
     }
     setIsLoading(false);
   }, []);

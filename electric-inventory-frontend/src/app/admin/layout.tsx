@@ -1,71 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { tokenManager } from "../../lib/api";
+import LayoutWrapper from "../../components/LayoutWrapper";
 import Sidebar from "../../components/Sidebar";
+import { UserRole } from "../../types/enums";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasToken, setHasToken] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-
-  useEffect(() => {
-    // Check if token exists and user has admin role (only on client side)
-    const token = localStorage.getItem('token');
-    if (!token) {
-      router.push('/auth/login');
-    } else {
-      const userRole = tokenManager.getUserRole();
-      if (userRole === 'ADMIN') {
-        setHasToken(true);
-      } else {
-        // User doesn't have admin role, redirect to appropriate dashboard or login
-        if (userRole === 'BRANCH') {
-          router.push('/branch/dashboard');
-        } else {
-          router.push('/auth/login');
-        }
-      }
-    }
-    setIsLoading(false);
-  }, [router]);
-
-  // Show loading while checking
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If no token, don't render anything (will redirect)
-  if (!hasToken) {
-    return null;
-  }
-
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar
-        isCollapsed={isSidebarCollapsed}
-        onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-      />
-      <main
-        className={`flex-1 transition-all duration-300 ease-in-out ${
-          isSidebarCollapsed ? "ml-16" : "ml-64"
-        }`}
-      >
-        {children}
-      </main>
-    </div>
+    <LayoutWrapper requiredRole={UserRole.ADMIN} SidebarComponent={Sidebar}>
+      {children}
+    </LayoutWrapper>
   );
 }
