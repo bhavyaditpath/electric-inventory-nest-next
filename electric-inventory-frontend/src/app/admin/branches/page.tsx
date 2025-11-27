@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import DataTable, { TableColumn } from "../../../components/DataTable";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { branchApi } from "@/Services/branch.api";
@@ -77,7 +77,7 @@ export default function BranchesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const loadBranches = async () => {
+  const loadBranches = useCallback(async () => {
     setLoading(true);
     try {
       const response = await branchApi.getAll();
@@ -96,14 +96,14 @@ export default function BranchesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     loadBranches();
   }, []);
 
 
-  const handleEdit = (branch: Branch) => {
+  const handleEdit = useCallback((branch: Branch) => {
     setModalMode('edit');
     setEditingBranch(branch);
     setFormData({
@@ -113,14 +113,14 @@ export default function BranchesPage() {
     });
     setErrors({ name: '', phone: ''});
     setShowModal(true);
-  };
+  }, []);
 
-  const handleDelete = (branch: Branch) => {
+  const handleDelete = useCallback((branch: Branch) => {
     setDeletingBranch(branch);
     setShowDeleteModal(true);
-  };
+  }, []);
 
-  const confirmDelete = async () => {
+  const confirmDelete = useCallback(async () => {
     if (!deletingBranch) return;
     setIsDeleting(true);
     try {
@@ -132,9 +132,9 @@ export default function BranchesPage() {
     } finally {
       setIsDeleting(false);
     }
-  };
+  }, [deletingBranch, isDeleting, loadBranches]);
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const newErrors = { name: '', phone: ''};
 
     if (!formData.name.trim()) {
@@ -147,9 +147,9 @@ export default function BranchesPage() {
 
     setErrors(newErrors);
     return !newErrors.name && !newErrors.phone;
-  };
+  }, [formData]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -180,16 +180,16 @@ export default function BranchesPage() {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [modalMode, editingBranch, formData, validateForm, loadBranches, isSubmitting]);
 
-  const handleCreateBranch = () => {
+  const handleCreateBranch = useCallback(() => {
     setModalMode('create');
     setFormData({ name: '', address: '', phone: ''});
     setErrors({ name: '', phone: ''});
     setShowModal(true);
-  };
+  }, []);
 
-  const actions = (branch: Branch, index: number) => (
+  const actions = useCallback((branch: Branch, index: number) => (
     <div className="flex items-center space-x-2">
       <button
         onClick={(e) => {
@@ -212,7 +212,7 @@ export default function BranchesPage() {
         <TrashIcon className="w-4 h-4" />
       </button>
     </div>
-  );
+  ), [handleEdit, handleDelete]);
 
   return (
     <div className="p-6">
