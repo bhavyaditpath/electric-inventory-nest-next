@@ -36,7 +36,7 @@ export class InventoryService {
 
       if (!inventoryMap.has(key)) {
         inventoryMap.set(key, {
-          id: key,
+          id: purchase.id,
           productName: purchase.productName,
           currentQuantity: 0,
           unit: purchase.unit,
