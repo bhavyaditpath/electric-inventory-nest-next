@@ -13,21 +13,24 @@ export class UserService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly branchService: BranchService,
-  ) {}
+  ) { }
 
   async create(userDto: UserDto): Promise<ApiResponse> {
     const { username, password, role, branchName } = userDto;
-
-    // Check if user exists
-    const existingUser = await this.userRepository.findOne({ where: { username } });
-    if (existingUser) {
-      return ApiResponseUtil.error('Username already exists');
-    }
 
     // Find branch by name
     const branch = await this.branchService.findByName(branchName);
     if (!branch) {
       return ApiResponseUtil.error('Branch not found');
+    }
+
+    // Check unique username inside the same branch
+    const existingUser = await this.userRepository.findOne({
+      where: { username, branchId: branch.id }
+    });
+
+    if (existingUser) {
+      return ApiResponseUtil.error('Username already exists in this branch');
     }
 
     // Hash password
@@ -37,8 +40,8 @@ export class UserService {
       username,
       password: hashedPassword,
       role,
+      branchId: branch.id,
     });
-    user.branchId = branch.id;
 
     const savedUser = await this.userRepository.save(user);
     return ApiResponseUtil.success(savedUser, 'User created successfully');
@@ -89,11 +92,17 @@ export class UserService {
       return ApiResponseUtil.error('User not found');
     }
 
-    // Check if username already exists (excluding current user)
+    // Username uniqueness check inside the same branch
     if (userDto.username && userDto.username !== user.username) {
-      const existingUser = await this.userRepository.findOne({ where: { username: userDto.username } });
+      const existingUser = await this.userRepository.findOne({
+        where: {
+          username: userDto.username,
+          branchId: user.branchId,
+        }
+      });
+
       if (existingUser) {
-        return ApiResponseUtil.error('Username already exists');
+        return ApiResponseUtil.error('Username already exists in this branch');
       }
     }
 
@@ -103,6 +112,7 @@ export class UserService {
 
     Object.assign(user, userDto);
     const updatedUser = await this.userRepository.save(user);
+
     return ApiResponseUtil.success(updatedUser, 'User updated successfully');
   }
 
