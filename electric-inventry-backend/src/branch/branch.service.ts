@@ -13,6 +13,14 @@ export class BranchService {
   ) {}
 
   async create(createBranchDto: CreateBranchDto) {
+    // Check if branch name already exists
+    const existingBranch = await this.branchRepository.findOne({
+      where: { name: createBranchDto.name, isRemoved: false }
+    });
+    if (existingBranch) {
+      throw new Error('Branch name already exists');
+    }
+
     const branch = this.branchRepository.create(createBranchDto);
     return this.branchRepository.save(branch);
   }
@@ -30,6 +38,16 @@ export class BranchService {
   }
 
   async update(id: number, updateBranchDto: UpdateBranchDto) {
+    // Check if branch name already exists (excluding current branch)
+    if (updateBranchDto.name) {
+      const existingBranch = await this.branchRepository.findOne({
+        where: { name: updateBranchDto.name, isRemoved: false }
+      });
+      if (existingBranch && existingBranch.id !== id) {
+        throw new Error('Branch name already exists');
+      }
+    }
+
     await this.branchRepository.update(id, updateBranchDto);
     return this.findOne(id);
   }

@@ -34,28 +34,15 @@ export default function Modal({
     };
 
     if (isOpen) {
-      // Store the currently focused element
       previousFocusRef.current = document.activeElement as HTMLElement;
 
       document.addEventListener("keydown", handleEscape);
-      // Prevent body scroll when modal is open
       document.body.style.overflow = "hidden";
-
-      // Focus the modal
-      setTimeout(() => {
-        modalRef.current?.focus();
-      }, 100);
     } else {
-      // Restore focus when modal closes
       if (previousFocusRef.current) {
         previousFocusRef.current.focus();
       }
     }
-
-    return () => {
-      document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
-    };
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -92,7 +79,7 @@ export default function Modal({
         <div
           ref={modalRef}
           tabIndex={-1}
-          className={`relative w-full ${sizeClasses[size]} transform overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/5 transition-all duration-300 ease-out ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'} ${className}`}
+          className={`relative w-full ${sizeClasses[size]} transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all duration-300 ease-out ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'} ${className}`}
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">

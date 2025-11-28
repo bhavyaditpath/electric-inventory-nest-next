@@ -9,8 +9,13 @@ export class BranchController {
   constructor(private readonly branchService: BranchService) {}
 
   @Post()
-  create(@Body() createBranchDto: CreateBranchDto) {
-    return ApiResponseUtil.success(this.branchService.create(createBranchDto));
+  async create(@Body() createBranchDto: CreateBranchDto) {
+    try {
+      const result = await this.branchService.create(createBranchDto);
+      return ApiResponseUtil.success(result, 'Branch created successfully');
+    } catch (error) {
+      return ApiResponseUtil.error(error.message || 'Failed to create branch');
+    }
   }
 
   @Get()
@@ -25,7 +30,12 @@ export class BranchController {
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() updateBranchDto: UpdateBranchDto) {
-    return ApiResponseUtil.success(await this.branchService.update(+id, updateBranchDto));
+    try {
+      const result = await this.branchService.update(+id, updateBranchDto);
+      return ApiResponseUtil.success(result, 'Branch updated successfully');
+    } catch (error) {
+      return ApiResponseUtil.error(error.message || 'Failed to update branch');
+    }
   }
 
   @Delete(':id')

@@ -87,12 +87,12 @@ const PurchasePage: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8">Purchase Management</h1>
+      <h1 className="text-3xl font-bold mb-8 text-gray-900">Purchase Management</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Purchase Form */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Record New Purchase</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Record New Purchase</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <InputField
               label="Product/Item Name"
@@ -175,7 +175,7 @@ const PurchasePage: React.FC = () => {
 
         {/* Purchase History */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h2 className="text-xl font-semibold mb-4">Recent Purchases</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-900">Recent Purchases</h2>
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {!purchases || purchases.length === 0 ? (
               <p className="text-gray-500">No purchases recorded yet.</p>

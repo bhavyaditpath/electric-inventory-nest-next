@@ -89,6 +89,14 @@ export class UserService {
       return ApiResponseUtil.error('User not found');
     }
 
+    // Check if username already exists (excluding current user)
+    if (userDto.username && userDto.username !== user.username) {
+      const existingUser = await this.userRepository.findOne({ where: { username: userDto.username } });
+      if (existingUser) {
+        return ApiResponseUtil.error('Username already exists');
+      }
+    }
+
     if (userDto.password) {
       userDto.password = await HashUtil.hash(userDto.password);
     }

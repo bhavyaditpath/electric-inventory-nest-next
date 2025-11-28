@@ -81,7 +81,6 @@ export default function BranchesPage() {
     setLoading(true);
     try {
       const response = await branchApi.getAll();
-      console.log(response)
       if (response.success && Array.isArray(response.data)) {
         setBranches(response.data as Branch[]);
       } else {
