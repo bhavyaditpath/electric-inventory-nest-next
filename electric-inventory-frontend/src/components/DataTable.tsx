@@ -406,16 +406,18 @@ export default function DataTable<T extends Record<string, any>>({
             {emptyMessage}
           </div>
         ) : (
-          paginatedData.map((row, rowIndex) => {
-            const actualIndex = pagination ? startIndex + rowIndex : rowIndex;
-            return (
-              <MobileCard
-                key={actualIndex}
-                row={row}
-                index={actualIndex}
-              />
-            );
-          })
+          <div className="overflow-y-auto max-h-screen scrollbar-hide">
+            {paginatedData.map((row, rowIndex) => {
+              const actualIndex = pagination ? startIndex + rowIndex : rowIndex;
+              return (
+                <MobileCard
+                  key={actualIndex}
+                  row={row}
+                  index={actualIndex}
+                />
+              );
+            })}
+          </div>
         )}
       </div>
 
