@@ -47,20 +47,36 @@ export class UserService {
   async findAll(): Promise<ApiResponse> {
     const users = await this.userRepository.find({
       where: { isRemoved: false },
-      select: ['id', 'username', 'role', 'branchId', 'isRemoved']
+      select: ['id', 'username', 'role', 'branchId', 'isRemoved'],
+      relations: ['branch']
     });
-    return ApiResponseUtil.success(users, 'Users retrieved successfully');
+
+    // Transform the data to include only branch name instead of full branch object
+    const transformedUsers = users.map(user => ({
+      ...user,
+      branch: user.branch ? user.branch.name : null
+    }));
+
+    return ApiResponseUtil.success(transformedUsers, 'Users retrieved successfully');
   }
 
   async findOne(id: number): Promise<ApiResponse> {
     const user = await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'username', 'role', 'branchId', 'isRemoved']
+      select: ['id', 'username', 'role', 'branchId', 'isRemoved'],
+      relations: ['branch']
     });
     if (!user) {
       return ApiResponseUtil.error('User not found');
     }
-    return ApiResponseUtil.success(user, 'User found');
+
+    // Transform the data to include only branch name instead of full branch object
+    const transformedUser = {
+      ...user,
+      branch: user.branch ? user.branch.name : null
+    };
+
+    return ApiResponseUtil.success(transformedUser, 'User found');
   }
 
   async findByUsername(username: string): Promise<User | null> {

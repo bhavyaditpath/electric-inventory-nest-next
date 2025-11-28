@@ -15,7 +15,7 @@ interface User {
     password: string | null;
     role: string;
     branchId: number;
-    branch: { id: number; name: string; };
+    branch: string | null;
     createdAt: number | null;
     isRemoved: boolean;
 }
@@ -68,7 +68,7 @@ export default function UserPage() {
         {
             key: "branch",
             header: "Branch",
-            render: (value: { id: number; name: string } | undefined) => value?.name || "N/A"
+            render: (value: string | null) => value || "N/A"
         },
         // {
         //     key: "isRemoved",
@@ -104,7 +104,7 @@ export default function UserPage() {
             username: user.username,
             password: '',
             role: user.role as UserRole,
-            branchId: user.branch.id,
+            branchId: user.branchId,
         });
         setErrors({ username: '', password: '', branchId: '' });
         setShowModal(true);
