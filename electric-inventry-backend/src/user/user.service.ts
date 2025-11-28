@@ -45,12 +45,18 @@ export class UserService {
   }
 
   async findAll(): Promise<ApiResponse> {
-    const users = await this.userRepository.find();
+    const users = await this.userRepository.find({
+      where: { isRemoved: false },
+      select: ['id', 'username', 'role', 'branchId', 'isRemoved']
+    });
     return ApiResponseUtil.success(users, 'Users retrieved successfully');
   }
 
   async findOne(id: number): Promise<ApiResponse> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: ['id', 'username', 'role', 'branchId', 'isRemoved']
+    });
     if (!user) {
       return ApiResponseUtil.error('User not found');
     }

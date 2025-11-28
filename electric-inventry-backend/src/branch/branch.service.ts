@@ -18,15 +18,15 @@ export class BranchService {
   }
 
   async findAll() {
-    return this.branchRepository.find();
+    return this.branchRepository.find({ where: { isRemoved: false } });
   }
 
   async findOne(id: number) {
-    return this.branchRepository.findOne({ where: { id } });
+    return this.branchRepository.findOne({ where: { id, isRemoved: false } });
   }
 
   async findByName(name: string): Promise<Branch | null> {
-    return this.branchRepository.findOne({ where: { name } });
+    return this.branchRepository.findOne({ where: { name, isRemoved: false } });
   }
 
   async update(id: number, updateBranchDto: UpdateBranchDto) {

@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { BranchService } from './branch.service';
 import { CreateBranchDto } from './dto/create-branch.dto';
 import { UpdateBranchDto } from './dto/update-branch.dto';
+import { ApiResponseUtil } from '../shared/api-response';
 
 @Controller('branch')
 export class BranchController {
@@ -9,26 +10,26 @@ export class BranchController {
 
   @Post()
   create(@Body() createBranchDto: CreateBranchDto) {
-    return this.branchService.create(createBranchDto);
+    return ApiResponseUtil.success(this.branchService.create(createBranchDto));
   }
 
   @Get()
-  findAll() {
-    return this.branchService.findAll();
+  async findAll() {
+    return ApiResponseUtil.success(await this.branchService.findAll());
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.branchService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return ApiResponseUtil.success(await this.branchService.findOne(+id));
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateBranchDto: UpdateBranchDto) {
-    return this.branchService.update(+id, updateBranchDto);
+  async update(@Param('id') id: string, @Body() updateBranchDto: UpdateBranchDto) {
+    return ApiResponseUtil.success(await this.branchService.update(+id, updateBranchDto));
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.branchService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return ApiResponseUtil.success(await this.branchService.remove(+id));
   }
 }

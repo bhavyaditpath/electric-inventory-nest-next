@@ -36,18 +36,15 @@ export default function UserPage() {
 
     const loadBranches = useCallback(async () => {
         const response = await branchApi.getAll();
-        let branchesData: { id: number; name: string }[] = [];
-        if (Array.isArray(response)) {
-            branchesData = response as { id: number; name: string }[];
-        } else if (response.success && Array.isArray(response.data)) {
-            branchesData = response.data as { id: number; name: string }[];
+        if (response.success && Array.isArray(response.data)) {
+            setBranches(response.data as { id: number; name: string }[]);
         }
-        setBranches(branchesData);
     }, []);
 
     const loadUsers = useCallback(async () => {
         setLoading(true);
         const response = await userApi.getAll();
+        console.log(response)
         let UserData: User[] = [];
         if (Array.isArray(response.data)) {
             UserData = response.data as User[];

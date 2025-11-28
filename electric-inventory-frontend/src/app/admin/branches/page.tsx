@@ -81,16 +81,12 @@ export default function BranchesPage() {
     setLoading(true);
     try {
       const response = await branchApi.getAll();
-      let branchesData: Branch[] = [];
-      if (Array.isArray(response)) {
-        branchesData = response as Branch[];
-      } else if (response.success && Array.isArray(response.data)) {
-        branchesData = response.data as Branch[];
+      console.log(response)
+      if (response.success && Array.isArray(response.data)) {
+        setBranches(response.data as Branch[]);
       } else {
         throw new Error('Invalid response format');
       }
-
-      setBranches(branchesData);
     } catch (error) {
       console.error('Error loading branches:', error);
     } finally {
