@@ -18,15 +18,19 @@ export class UserService {
   async create(userDto: UserDto): Promise<ApiResponse> {
     const { username, password, role, branchName } = userDto;
 
-    // Find branch by name
+    // Find branch
     const branch = await this.branchService.findByName(branchName);
     if (!branch) {
       return ApiResponseUtil.error('Branch not found');
     }
 
-    // Check unique username inside the same branch
+    // Check unique username inside SAME branch (only active users)
     const existingUser = await this.userRepository.findOne({
-      where: { username, branchId: branch.id }
+      where: {
+        username: username,
+        branchId: branch.id,
+        isRemoved: false,
+      }
     });
 
     if (existingUser) {
@@ -41,6 +45,7 @@ export class UserService {
       password: hashedPassword,
       role,
       branchId: branch.id,
+      isRemoved: false,
     });
 
     const savedUser = await this.userRepository.save(user);
@@ -57,7 +62,8 @@ export class UserService {
     // Transform the data to include only branch name instead of full branch object
     const transformedUsers = users.map(user => ({
       ...user,
-      branch: user.branch ? user.branch.name : null
+      branch: user.branch ? user.branch.name : null,
+      role: user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase()
     }));
 
     return ApiResponseUtil.success(transformedUsers, 'Users retrieved successfully');
@@ -76,7 +82,8 @@ export class UserService {
     // Transform the data to include only branch name instead of full branch object
     const transformedUser = {
       ...user,
-      branch: user.branch ? user.branch.name : null
+      branch: user.branch ? user.branch.name : null,
+      role: user.role.charAt(0).toUpperCase() + user.role.slice(1).toLowerCase()
     };
 
     return ApiResponseUtil.success(transformedUser, 'User found');
@@ -87,32 +94,50 @@ export class UserService {
   }
 
   async update(id: number, userDto: UserDto): Promise<ApiResponse> {
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({
+      where: { id, isRemoved: false },
+    });
+
     if (!user) {
       return ApiResponseUtil.error('User not found');
     }
 
-    // Username uniqueness check inside the same branch
-    if (userDto.username && userDto.username !== user.username) {
+    // Determine branch (existing or updated)
+    let branchId = user.branchId;
+
+    if (userDto.branchName) {
+      const branch = await this.branchService.findByName(userDto.branchName);
+      if (!branch) return ApiResponseUtil.error('Branch not found');
+      branchId = branch.id;
+    }
+
+    // Check username uniqueness in same branch (exclude removed users)
+    if (userDto.username) {
       const existingUser = await this.userRepository.findOne({
         where: {
           username: userDto.username,
-          branchId: user.branchId,
+          branchId: branchId,
+          isRemoved: false,
         }
       });
 
-      if (existingUser) {
+      if (existingUser && existingUser.id !== id) {
         return ApiResponseUtil.error('Username already exists in this branch');
       }
     }
 
+    // Hash password if changed
     if (userDto.password) {
       userDto.password = await HashUtil.hash(userDto.password);
     }
 
-    Object.assign(user, userDto);
-    const updatedUser = await this.userRepository.save(user);
+    // Apply updates
+    Object.assign(user, {
+      ...userDto,
+      branchId,
+    });
 
+    const updatedUser = await this.userRepository.save(user);
     return ApiResponseUtil.success(updatedUser, 'User updated successfully');
   }
 
