@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { UserRole } from "../../../types/enums";
 import { tokenManager } from "@/Services/token.management.service";
 import { authApi } from "@/Services/auth.api";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const router = useRouter();
+  const { login } = useAuth();
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -25,13 +27,26 @@ export default function LoginPage() {
       if (response.success && response.data?.access_token) {
         tokenManager.setToken(response.data.access_token);
 
-        const userRole = tokenManager.getUserRole();
-        if (userRole === UserRole.ADMIN) {
-          router.push("/admin/dashboard");
-        } else if (userRole === UserRole.BRANCH) {
-          router.push("/branch/dashboard");
+        const decoded = tokenManager.decodeToken(response.data.access_token);
+        if (decoded) {
+          const userData = {
+            id: decoded.sub || 0,
+            username: decoded.username || '',
+            role: (decoded.role as UserRole) || UserRole.BRANCH,
+            branchId: decoded.branchId || 0,
+          };
+          login(response.data.access_token, userData);
+
+          if (userData.role === UserRole.ADMIN) {
+            router.push("/admin/dashboard");
+          } else if (userData.role === UserRole.BRANCH) {
+            router.push("/branch/dashboard");
+          } else {
+            setError("Invalid user role");
+            tokenManager.removeToken();
+          }
         } else {
-          setError("Invalid user role");
+          setError("Invalid token");
           tokenManager.removeToken();
         }
       } else {
