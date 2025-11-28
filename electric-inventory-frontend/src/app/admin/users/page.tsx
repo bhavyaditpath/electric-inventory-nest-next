@@ -8,6 +8,7 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import Modal from "@/components/Modal";
 import ConfirmModal from "@/components/ConfirmModal";
 import { UserRole } from "@/types/enums";
+import { showSuccess, showError } from "@/Services/toast.service";
 
 interface User {
     id: number;
@@ -119,13 +120,19 @@ export default function UserPage() {
         if (!deletingUser) return;
         setIsDeleting(true);
         try {
-            await userApi.delete(deletingUser.id);
-            await loadUsers();
-            setShowDeleteModal(false);
-            setDeletingUser(null);
+            const response = await userApi.delete(deletingUser.id);
+            if (response.success) {
+                console.log(response)
+                showSuccess(response.message || "User deleted successfully");
+                await loadUsers();
+                setShowDeleteModal(false);
+                setDeletingUser(null);
+            } else {
+                showError(response.message || "Error deleting user");
+            }
         } catch (error) {
             console.error("Error deleting user:", error);
-            alert("Error deleting user");
+            showError("Error deleting user");
         } finally {
             setIsDeleting(false);
         }
@@ -159,33 +166,42 @@ export default function UserPage() {
 
         const branchName = branches.find(b => b.id === formData.branchId)?.name;
         if (!branchName) {
-            alert('Invalid branch selected');
+            showError('Invalid branch selected');
             return;
         }
 
         setIsSubmitting(true);
         try {
+            let response;
             if (modalMode === 'create') {
-                await userApi.create({
+                response = await userApi.create({
                     username: formData.username,
                     password: formData.password,
                     role: formData.role,
                     branchName
                 });
             } else if (modalMode === 'edit' && editingUser) {
-                await userApi.update(editingUser.id, {
+                response = await userApi.update(editingUser.id, {
                     username: formData.username,
                     password: formData.password || undefined,
                     role: formData.role,
                     branchName
                 });
             }
-            setShowModal(false);
-            setEditingUser(null);
-            await loadUsers();
+
+            if (response && response.success) {
+                console.log(response)
+                showSuccess(response.message || `User ${modalMode === 'create' ? 'created' : 'updated'} successfully`);
+                setShowModal(false);
+                setEditingUser(null);
+                await loadUsers();
+            } else {
+                console.log('Showing error toast for response:', response);
+                showError(response?.message || `Error ${modalMode === 'create' ? 'creating' : 'updating'} user`);
+            }
         } catch (error) {
             console.error(`Error ${modalMode === 'create' ? 'creating' : 'updating'} user:`, error);
-            alert(`Error ${modalMode === 'create' ? 'creating' : 'updating'} user`);
+            showError(`Error ${modalMode === 'create' ? 'creating' : 'updating'} user`);
         } finally {
             setIsSubmitting(false);
         }

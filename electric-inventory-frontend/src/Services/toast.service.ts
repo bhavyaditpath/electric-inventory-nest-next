@@ -1,7 +1,9 @@
+import toast from 'react-hot-toast';
+
 export const showSuccess = (message: string) => {
-  alert(`Success: ${message}`);
+  toast.success(message);
 };
 
 export const showError = (message: string) => {
-  alert(`Error: ${message}`);
+  toast.error(message);
 };

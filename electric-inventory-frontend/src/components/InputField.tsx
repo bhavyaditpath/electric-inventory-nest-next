@@ -21,7 +21,7 @@ const InputField: React.FC<InputFieldProps> = ({ label, type = 'text', value, on
         onChange={onChange}
         step={step}
         name={name}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-700"
         required
       />
     </div>

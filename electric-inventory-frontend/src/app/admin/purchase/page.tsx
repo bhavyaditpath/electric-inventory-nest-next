@@ -120,7 +120,7 @@ const PurchasePage: React.FC = () => {
                   name="unit"
                   value={formData.unit}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-700"
                 >
                   <option value="pieces">Pieces</option>
                   <option value="boxes">Boxes</option>

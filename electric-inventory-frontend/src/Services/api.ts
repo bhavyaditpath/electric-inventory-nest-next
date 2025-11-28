@@ -39,11 +39,6 @@ class ApiClient {
     try {
       const response = await fetch(url, config);
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'API request failed');
-      }
-
       return data;
     } catch (error) {
       console.error('API Error:', error);

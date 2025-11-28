@@ -6,6 +6,7 @@ import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { branchApi } from "@/Services/branch.api";
 import Modal from "../../../components/Modal";
 import ConfirmModal from "../../../components/ConfirmModal";
+import { showSuccess, showError } from "@/Services/toast.service";
 
 interface Branch {
   id: number;
@@ -119,15 +120,22 @@ export default function BranchesPage() {
     if (!deletingBranch) return;
     setIsDeleting(true);
     try {
-      await branchApi.delete(deletingBranch.id);
-      await loadBranches();
+      const response = await branchApi.delete(deletingBranch.id);
+      if (response.success) {
+        showSuccess(response.message || "Branch deleted successfully");
+        await loadBranches();
+        setShowDeleteModal(false);
+        setDeletingBranch(null);
+      } else {
+        showError(response.message || "Error deleting branch");
+      }
     } catch (error) {
       console.error("Error deleting branch:", error);
-      alert("Error deleting branch");
+      showError("Error deleting branch");
     } finally {
       setIsDeleting(false);
     }
-  }, [deletingBranch, isDeleting, loadBranches]);
+  }, [deletingBranch, loadBranches]);
 
   const validateForm = useCallback(() => {
     const newErrors = { name: '', phone: ''};
@@ -153,29 +161,36 @@ export default function BranchesPage() {
 
     setIsSubmitting(true);
     try {
+      let response;
       if (modalMode === 'create') {
-        await branchApi.create({
+        response = await branchApi.create({
           name: formData.name,
           address: formData.address,
           phone: formData.phone
         });
       } else if (modalMode === 'edit' && editingBranch) {
-        await branchApi.update(editingBranch.id, {
+        response = await branchApi.update(editingBranch.id, {
           name: formData.name,
           address: formData.address,
           phone: formData.phone
         });
       }
-      setShowModal(false);
-      setEditingBranch(null);
-      await loadBranches();
+
+      if (response && response.success) {
+        showSuccess(response.message || `Branch ${modalMode === 'create' ? 'created' : 'updated'} successfully`);
+        setShowModal(false);
+        setEditingBranch(null);
+        await loadBranches();
+      } else {
+        showError(response?.message || `Error ${modalMode === 'create' ? 'creating' : 'updating'} branch`);
+      }
     } catch (error) {
       console.error(`Error ${modalMode === 'create' ? 'creating' : 'updating'} branch:`, error);
-      alert(`Error ${modalMode === 'create' ? 'creating' : 'updating'} branch`);
+      showError(`Error ${modalMode === 'create' ? 'creating' : 'updating'} branch`);
     } finally {
       setIsSubmitting(false);
     }
-  }, [modalMode, editingBranch, formData, validateForm, loadBranches, isSubmitting]);
+  }, [modalMode, editingBranch, formData, validateForm, loadBranches]);
 
   const handleCreateBranch = useCallback(() => {
     setModalMode('create');

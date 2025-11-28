@@ -1,5 +1,6 @@
 import "./globals.css";
 import { AuthProvider } from "../contexts/AuthContext";
+import { RootToaster } from "@/components/RootToaster";
 
 export const metadata = {
   title: "Electric Inventory System",
@@ -13,6 +14,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           {children}
         </AuthProvider>
+
+        {/* CLIENT TOASTER HERE */}
+        <RootToaster />
       </body>
     </html>
   );

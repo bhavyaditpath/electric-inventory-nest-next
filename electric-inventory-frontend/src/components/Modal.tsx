@@ -69,7 +69,7 @@ export default function Modal({
     >
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/25 backdrop-blur-sm transition-all duration-300 ease-out"
+        className="fixed inset-0 bg-black/25 backdrop-blur-sm transition-all duration-300 ease-out z-40"
         onClick={handleBackdropClick}
         aria-hidden="true"
       />
@@ -79,7 +79,7 @@ export default function Modal({
         <div
           ref={modalRef}
           tabIndex={-1}
-          className={`relative w-full ${sizeClasses[size]} transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all duration-300 ease-out ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'} ${className}`}
+          className={`relative z-50 w-full ${sizeClasses[size]} transform overflow-hidden rounded-xl bg-white shadow-2xl transition-all duration-300 ease-out ${isOpen ? 'scale-100 opacity-100' : 'scale-95 opacity-0'} ${className}`}
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
