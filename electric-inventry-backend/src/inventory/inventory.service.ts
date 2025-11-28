@@ -13,52 +13,54 @@ export class InventoryService {
   ) {}
 
   async findAll(user: User) {
-    let query = this.purchaseRepository
-      .createQueryBuilder('purchase')
-      .leftJoinAndSelect('purchase.user', 'user')
-      .leftJoinAndSelect('purchase.branch', 'branch')
-      .where('purchase.isRemoved = :isRemoved', { isRemoved: false });
+  let query = this.purchaseRepository
+    .createQueryBuilder('purchase')
+    .leftJoinAndSelect('purchase.user', 'user')
+    .leftJoinAndSelect('purchase.branch', 'branch')
+    .where('purchase.isRemoved = :isRemoved', { isRemoved: false });
 
-    // Role-based filtering
-    if (user.role === UserRole.BRANCH) {
-      // Branch users see only their branch's purchases
-      query = query.andWhere('purchase.branchId = :branchId', { branchId: user.branchId });
-    }
-    // Admin users see all purchases
-
-    const purchases = await query.getMany();
-
-    // Aggregate purchases by product to show inventory
-    const inventoryMap = new Map();
-
-    purchases.forEach(purchase => {
-      const key = `${purchase.productName}-${purchase.branchId || 'admin'}`;
-
-      if (!inventoryMap.has(key)) {
-        inventoryMap.set(key, {
-          id: purchase.id,
-          productName: purchase.productName,
-          currentQuantity: 0,
-          unit: purchase.unit,
-          lowStockThreshold: purchase.lowStockThreshold,
-          brand: purchase.brand,
-          branchId: purchase.branchId,
-          branch: purchase.branch,
-          lastPurchaseDate: purchase.createdAt,
-          totalPurchased: 0,
-        });
-      }
-
-      const item = inventoryMap.get(key);
-      item.currentQuantity += parseFloat(purchase.quantity.toString());
-      item.totalPurchased += parseFloat(purchase.quantity.toString());
-
-      // Update last purchase date if this is more recent
-      if (purchase.createdAt > item.lastPurchaseDate) {
-        item.lastPurchaseDate = purchase.createdAt;
-      }
+  // Branch user should only see their branch's inventory
+  if (user.role === UserRole.BRANCH) {
+    query = query.andWhere('purchase.branchId = :branchId', {
+      branchId: user.branchId,
     });
-
-    return Array.from(inventoryMap.values());
   }
+
+  const purchases = await query.getMany();
+
+  // Build inventory grouped by product within the branch
+  const inventoryMap = new Map();
+
+  purchases.forEach((purchase) => {
+    const key = `${purchase.productName}-${purchase.branchId}`;
+
+    if (!inventoryMap.has(key)) {
+      inventoryMap.set(key, {
+        id: purchase.id,
+        productName: purchase.productName,
+        currentQuantity: 0,
+        unit: purchase.unit,
+        lowStockThreshold: purchase.lowStockThreshold,
+        brand: purchase.brand,
+        branchId: purchase.branchId,
+        branch: purchase.branch,
+        lastPurchaseDate: purchase.createdAt,
+        totalPurchased: 0,
+      });
+    }
+
+    console.log(inventoryMap)
+
+    const item = inventoryMap.get(key);
+    item.currentQuantity += Number(purchase.quantity);
+    item.totalPurchased += Number(purchase.quantity);
+
+    if (purchase.createdAt > item.lastPurchaseDate) {
+      item.lastPurchaseDate = purchase.createdAt;
+    }
+  });
+
+  return Array.from(inventoryMap.values());
+}
+
 }

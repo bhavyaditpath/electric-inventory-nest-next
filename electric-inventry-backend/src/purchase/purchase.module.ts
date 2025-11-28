@@ -3,11 +3,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PurchaseService } from './purchase.service';
 import { PurchaseController } from './purchase.controller';
 import { Purchase } from './entities/purchase.entity';
-import { Inventory } from '../inventory/entities/inventory.entity';
 import { User } from '../user/entities/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Purchase, Inventory, User])],
+  imports: [TypeOrmModule.forFeature([Purchase, User])],
   controllers: [PurchaseController],
   providers: [PurchaseService],
   exports: [PurchaseService],

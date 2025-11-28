@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import DataTable from "../../../components/DataTable";
-import { getInventories } from "../../../Services/inventory.service";
 import { showError } from "../../../Services/toast.service";
+import { purchaseApi } from "@/Services/inventory.service";
 
 interface InventoryItem {
   id: string;
@@ -29,8 +29,13 @@ export default function AdminInventoryPage() {
   const loadInventory = async () => {
     try {
       setLoading(true);
-      const data = await getInventories();
-      setInventory(data || []);
+      const response = await purchaseApi.getAll();
+         console.log(response)
+        let InventoryData: InventoryItem[] = [];
+        if (Array.isArray(response)) {
+            InventoryData = response as InventoryItem[];
+        }
+      setInventory(InventoryData);
     } catch (error) {
       console.error('Failed to load inventory:', error);
       showError('Failed to load inventory');
@@ -116,7 +121,7 @@ export default function AdminInventoryPage() {
       {/* Stock Alert Summary */}
       {inventory.length > 0 && (
         <div className="mt-6 bg-gray-50 p-4 rounded-lg">
-          <h3 className="text-lg font-semibold mb-3">Global Stock Alert Summary</h3>
+          <h3 className="text-lg font-semibold mb-3 text-gray-900">Global Stock Alert Summary</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-red-50 p-3 rounded border-l-4 border-red-500">
               <div className="text-red-800 font-medium">Low Stock Items</div>

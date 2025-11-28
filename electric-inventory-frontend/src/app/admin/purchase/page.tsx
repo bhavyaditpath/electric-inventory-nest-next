@@ -195,7 +195,7 @@ const PurchasePage: React.FC = () => {
             />
 
             <InputField
-              label="Company/Brand Name"
+              label="Supplier Name"
               type="text"
               value={formData.brand}
               onChange={handleInputChange}

@@ -1,3 +1,9 @@
+export interface Item {
+  _id: string;
+  name: string;
+  stock: number;
+}
+
 export interface PurchaseResponseDto {
   id: number;
   productName: string;
@@ -14,6 +20,19 @@ export interface PurchaseResponseDto {
   createdBy?: number;
   updatedBy?: number;
   isRemoved: boolean;
+}
+
+export interface Inventory {
+  id: string;
+  productName: string;
+  currentQuantity: number;
+  unit: string;
+  lowStockThreshold: number;
+  brand: string;
+  branchId?: number;
+  branch?: any;
+  lastPurchaseDate: Date;
+  totalPurchased: number;
 }
 
 export interface CreatePurchaseDto {
